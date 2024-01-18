@@ -1,12 +1,19 @@
-#ifndef ANGLES_H
-#define ANGLES_H
+// ANGLES_H가 정의되지 않았다면
+#ifndef ANGLES_H  
+// ANGLES_H를 정의한다
+#define ANGLES_H  
 
-#include <cmath>
-#include <stdio.h>
-#include <limits>
-#include <iostream>
+// 수학 계산을 위한 표준 라이브러리 포함
+#include <cmath>  
+// 표준 입출력을 위한 라이브러리 포함
+#include <stdio.h>  
+// 데이터 타입의 한계값들을 포함하는 라이브러리 포함
+#include <limits>  
+// 표준 입력 및 출력 스트림 객체를 위한 라이브러리 포함
+#include <iostream>  
 
-#include <yaml-cpp/yaml.h>
+// YAML 파싱을 위한 yaml-cpp 라이브러리 포함
+#include <yaml-cpp/yaml.h>  
 
 // This work was inspired on radians.h from I. Bogoslavskyi, C. Stachniss, University of Bonn 
 // https://github.com/PRBonn/cloud_to_image.git
@@ -30,142 +37,190 @@
 //
 // This class provides cooked literals for Angles, following on the description in:
 // https://akrzemi1.wordpress.com/2012/08/12/user-defined-literals-part-i/
+
+
+// 'cloud_to_image' 네임스페이스 정의
 namespace cloud_to_image 
 {
+  // 'Angle' 클래스 선언
   class Angle;
 }
 
-//forward declaration of literal operators
+// 리터럴 연산자의 전방 선언
+// long double 타입의 값을 받아 'cloud_to_image::Angle' 타입으로 변환하는 리터럴 연산자 '_rad'
 constexpr cloud_to_image::Angle operator"" _rad(long double Angle);
+
+// unsigned long long int 타입의 값을 받아 'cloud_to_image::Angle' 타입으로 변환하는 리터럴 연산자 '_deg'
 constexpr cloud_to_image::Angle operator"" _deg(
     unsigned long long int Angle);
+
+// long double 타입의 값을 받아 'cloud_to_image::Angle' 타입으로 변환하는 리터럴 연산자 '_deg'
 constexpr cloud_to_image::Angle operator"" _deg(long double Angle);
 
+// 'cloud_to_image' 네임스페이스 정의
 namespace cloud_to_image
 {
+    // 'Angle' 클래스 정의
+    class Angle 
+    {
+        // IsAngle 클래스 정의: 원시 생성자(raw constructor) 사용을 방지하기 위한 태그 클래스
+        public:
+            class IsAngle {};  
 
-class Angle 
-{
-	public:
-	    class IsAngle {};  // a tag to prevent using raw constructor
-	    Angle() : _raw_angle{0}, _valid{false} {}
-	    explicit constexpr Angle(IsAngle, float angle)
-		: _raw_angle{angle}, _valid{true} {}
+        // 기본 생성자: 각도를 0으로 설정하고 유효하지 않은 상태로 초기화
+        Angle() : _raw_angle{0}, _valid{false} {}
 
-	    inline float val() const { return _raw_angle; }
-	    inline bool valid() const { return _valid; }
+        // 명시적 생성자: IsAngle 태그와 각도 값을 받아 초기화
+        explicit constexpr Angle(IsAngle, float angle)
+            : _raw_angle{angle}, _valid{true} {}
 
-	    static Angle fromRadians(float radians) 
-	    {
-	      return Angle{IsAngle{}, radians};
-	    }
+        // 각도 값을 반환하는 함수
+        inline float val() const { return _raw_angle; }
+        // 유효성을 반환하는 함수
+        inline bool valid() const { return _valid; }
 
-	    static Angle fromDegrees(float degrees) 
-	    {
-	      return Angle{IsAngle{}, static_cast<float>(degrees * M_PI / 180.)};
-	    }
 
-	    inline float toRadians() const { return _raw_angle; }
-	    inline float toDegrees() const { return 180. * _raw_angle / M_PI; }
+	        // 라디안 단위의 각도로부터 Angle 객체를 생성하는 정적 메소드
+        static Angle fromRadians(float radians) 
+        {
+            return Angle{IsAngle{}, radians};
+        }
 
-	    Angle operator-(const Angle& other) const 
-	    {
-	      return fromRadians(_raw_angle - other._raw_angle);
-	    }
+        // 도 단위의 각도로부터 Angle 객체를 생성하는 정적 메소드
+        static Angle fromDegrees(float degrees) 
+        {
+            return Angle{IsAngle{}, static_cast<float>(degrees * M_PI / 180.)};
+        }
 
-	    Angle operator+(const Angle& other) const 
-	    {
-	      return fromRadians(_raw_angle + other._raw_angle);
-	    }
+        // 객체가 나타내는 각도를 라디안 단위로 반환하는 메소드
+        inline float toRadians() const { return _raw_angle; }
 
-	    Angle operator+=(const Angle& other) 
-	    {
-	      this->_raw_angle += other._raw_angle;
-	      return *this;
-	    }
+        // 객체가 나타내는 각도를 도 단위로 반환하는 메소드
+        inline float toDegrees() const { return 180. * _raw_angle / M_PI; }
 
-	    Angle operator-=(const Angle& other) 
-	    {
-	      this->_raw_angle -= other._raw_angle;
-	      return *this;
-	    }
+        // 두 Angle 객체 간의 차를 계산하는 연산자 오버로딩
+        Angle operator-(const Angle& other) const 
+        {
+            return fromRadians(_raw_angle - other._raw_angle);
+        }
 
-	    Angle operator/(const float& num) const 
-	    {
-	      return fromRadians(_raw_angle / num);
-	    }
+	        // 두 Angle 객체를 더하는 연산자 오버로딩
+        Angle operator+(const Angle& other) const 
+        {
+            return fromRadians(_raw_angle + other._raw_angle);
+        }
 
-	    float operator/(const Angle& other) const 
-	    {
-	      return _raw_angle / other._raw_angle;
-	    }
+        // 현재 Angle 객체에 다른 Angle 객체를 더하는 연산자 오버로딩
+        Angle operator+=(const Angle& other) 
+        {
+            this->_raw_angle += other._raw_angle;
+            return *this;
+        }
 
-	    Angle operator*(const float& num) const 
-	    {
-	      return fromRadians(_raw_angle * num);
-	    }
+        // 현재 Angle 객체에서 다른 Angle 객체를 빼는 연산자 오버로딩
+        Angle operator-=(const Angle& other) 
+        {
+            this->_raw_angle -= other._raw_angle;
+            return *this;
+        }
 
-	    Angle operator-() { return fromRadians(-_raw_angle); }
+        // 현재 Angle 객체를 숫자로 나누는 연산자 오버로딩
+        Angle operator/(const float& num) const 
+        {
+            return fromRadians(_raw_angle / num);
+        }
 
-	    bool operator<(const Angle& other) const 
-	    {
-	      return _raw_angle < other._raw_angle - std::numeric_limits<float>::epsilon();
-	    }
+        // 현재 Angle 객체를 다른 Angle 객체로 나누어 결과를 float 값으로 반환하는 연산자 오버로딩
+        float operator/(const Angle& other) const 
+        {
+            return _raw_angle / other._raw_angle;
+        }
 
-	    bool operator>(const Angle& other) const 
-	    {
-	      return _raw_angle > other._raw_angle + std::numeric_limits<float>::epsilon();
-	    }
+        // 현재 Angle 객체에 숫자를 곱하는 연산자 오버로딩
+        Angle operator*(const float& num) const 
+        {
+            return fromRadians(_raw_angle * num);
+        }
 
-	    bool operator==(const Angle& other) const 
-	    {
-	      return std::fabs(_raw_angle - other._raw_angle) <= std::numeric_limits<float>::epsilon();
-	    }
+        // 현재 Angle 객체의 부호를 반전시키는 연산자 오버로딩
+        Angle operator-() { return fromRadians(-_raw_angle); }
 
-	    void normalize(const Angle& from = 0_deg, const Angle& to = 360_deg) 
-	    {
-	      float diff = (to - from).val();
-	      while (_raw_angle < from.val()) {
-			_raw_angle += diff;
-	      }
-	      while (_raw_angle > to.val()) {
-			_raw_angle -= diff;
-	      }
-	    }
+        // 현재 Angle 객체가 다른 Angle 객체보다 작은지 비교하는 연산자 오버로딩
+        bool operator<(const Angle& other) const 
+        {
+            return _raw_angle < other._raw_angle - std::numeric_limits<float>::epsilon();
+        }
 
-	    Angle normalize(const Angle& from = 0_deg, const Angle& to = 360_deg) const 
-	    {
-	      Angle new_Angle = fromRadians(_raw_angle);
-	      new_Angle.normalize(from, to);
-	      return new_Angle;
-	    }
+        // 현재 Angle 객체가 다른 Angle 객체보다 큰지 비교하는 연산자 오버로딩
+        bool operator>(const Angle& other) const 
+        {
+            return _raw_angle > other._raw_angle + std::numeric_limits<float>::epsilon();
+        }
 
-	    static Angle abs(const Angle& Angle) 
-	    {
-	      return Angle::fromRadians(std::fabs(Angle._raw_angle));
-	    }
+        // 현재 Angle 객체와 다른 Angle 객체가 동등한지 비교하는 연산자 오버로딩
+        bool operator==(const Angle& other) const 
+        {
+            return std::fabs(_raw_angle - other._raw_angle) <= std::numeric_limits<float>::epsilon();
+        }
 
-	    static Angle floor(const Angle& Angle) 
-	    {
-	      return Angle::fromDegrees(std::floor(Angle.toDegrees()));
-	    }
+       // 'from'과 'to' 각도 사이로 현재 객체의 각도를 정규화하는 함수
+        void normalize(const Angle& from = 0_deg, const Angle& to = 360_deg) 
+        {
+            float diff = (to - from).val();
+            // 현재 각도가 'from' 미만이면, 'from'과 'to'의 차이만큼 더해 정규화
+            while (_raw_angle < from.val()) {
+                _raw_angle += diff;
+            }
+            // 현재 각도가 'to' 초과면, 'from'과 'to'의 차이만큼 빼서 정규화
+            while (_raw_angle > to.val()) {
+                _raw_angle -= diff;
+            }
+        }
 
-	    friend std::ostream& operator <<(std::ostream& out, const Angle& val)
-		{
-			out << val.toDegrees() << std::endl;
-			return out;
-		}
+        // 현재 객체의 복사본을 생성하여 'from'과 'to' 각도 사이로 정규화하는 함수
+        Angle normalize(const Angle& from = 0_deg, const Angle& to = 360_deg) const 
+        {
+            // 현재 각도로부터 새로운 Angle 객체 생성
+            Angle new_Angle = fromRadians(_raw_angle);
+            // 새로운 객체의 각도를 'from'과 'to' 사이로 정규화
+            new_Angle.normalize(from, to);
+            // 정규화된 새로운 Angle 객체 반환
+            return new_Angle;
+        }
 
-		friend YAML::Emitter& operator <<(YAML::Emitter& out, const Angle& val)
-		{
-			out << val.toDegrees();
-			return out;
-		}
+        // Angle 객체의 절대 각도를 반환하는 정적 함수
+        static Angle abs(const Angle& Angle) 
+        {
+            return Angle::fromRadians(std::fabs(Angle._raw_angle));
+        }
+
+        // Angle 객체의 각도를 내림하여 반환하는 정적 함수
+        static Angle floor(const Angle& Angle) 
+        {
+            return Angle::fromDegrees(std::floor(Angle.toDegrees()));
+        }
+
+        // Angle 객체를 표준 출력 스트림에 출력하는 연산자 오버로딩
+        friend std::ostream& operator <<(std::ostream& out, const Angle& val)
+        {
+            out << val.toDegrees() << std::endl;
+            return out;
+        }
+
+        // Angle 객체를 YAML 에미터에 출력하는 연산자 오버로딩
+        friend YAML::Emitter& operator <<(YAML::Emitter& out, const Angle& val)
+        {
+            out << val.toDegrees();
+            return out;
+        }
 
 	protected:
+	    // 각도 값을 저장하는 실수형 변수
 	    float _raw_angle;
+	    // 각도의 유효성을 나타내는 불리언 변수
 	    bool _valid;
 };
+
 
 class AngularRange 
 {

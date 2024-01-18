@@ -221,46 +221,73 @@ namespace cloud_to_image
 	    bool _valid;
 };
 
-
 class AngularRange 
 {
 	public:
 		/**
 		* Enum for the direction of the angular range.
 		*/
+		// 각도 범위의 방향을 위한 열거형(enum).
 		enum class Direction { HORIZONTAL, VERTICAL };
 
-		AngularRange() {}
-		AngularRange(const Angle& start_angle, const Angle& end_angle, const Angle& step, const std::vector<float>& correction_table = std::vector<float>()) {
-			_start_angle = start_angle;
-			_end_angle = end_angle;
-			_step = step;
-			_num_beams = std::round(std::fabs((_end_angle - _start_angle) / _step));
-			_span = Angle::abs(end_angle - start_angle);
-			if (correction_table.size()) {
-				setAngleCorrectionTable(correction_table);
+		// 기본 생성자: 아무런 매개변수 없이 객체를 생성합니다.
+        AngularRange() {}
+
+        // 매개변수가 있는 생성자: 시작 각도, 종료 각도, 각도 단계, 그리고 선택적으로 보정 테이블을 받아 객체를 초기화합니다.
+        AngularRange(const Angle& start_angle, const Angle& end_angle, const Angle& step, const std::vector<float>& correction_table = std::vector<float>()) {
+            // 시작 각도를 설정합니다.
+            _start_angle = start_angle;
+            // 종료 각도를 설정합니다.
+            _end_angle = end_angle;
+            // 각도 단계를 설정합니다.
+            _step = step;
+            // 시작 각도와 종료 각도 사이의 빔 수(beam count)를 계산하고 설정합니다.
+            _num_beams = std::round(std::fabs((_end_angle - _start_angle) / _step));
+            // 시작 각도와 종료 각도 사이의 전체 각도 범위(span)를 계산합니다.
+            _span = Angle::abs(end_angle - start_angle);
+            // 보정 테이블에 값이 있으면,
+            if (correction_table.size()) {
+                // 보정 테이블을 설정하는 함수를 호출합니다.
+                setAngleCorrectionTable(correction_table);
 			}
 		}
-		AngularRange(const Angle& start_angle, const Angle& end_angle, int num_beams, const std::vector<float>& correction_table = std::vector<float>()) {
-			_start_angle = start_angle;
-			_end_angle = end_angle;
-			_num_beams = num_beams;
-			_step = Angle::abs((_end_angle - _start_angle) / _num_beams);
-			_span = Angle::abs(end_angle - start_angle);
-			if (correction_table.size()) {
-				setAngleCorrectionTable(correction_table);
-			}
+
+		// 매개변수가 있는 생성자: 시작 각도, 종료 각도, 빔 수, 그리고 선택적으로 보정 테이블을 받아 객체를 초기화합니다.
+
+        AngularRange(const Angle& start_angle, const Angle& end_angle, int num_beams, const std::vector<float>& correction_table = std::vector<float>()) {
+            // 시작 각도를 설정합니다.
+            _start_angle = start_angle;
+            // 종료 각도를 설정합니다.
+            _end_angle = end_angle;
+            // 빔 수를 설정합니다.
+            _num_beams = num_beams;
+            // 각도 단계를 계산하여 설정합니다. 종료 각도와 시작 각도의 차이를 빔 수로 나누어 계산합니다.
+            _step = Angle::abs((_end_angle - _start_angle) / _num_beams);
+            // 시작 각도와 종료 각도 사이의 전체 각도 범위(span)를 계산합니다.
+            _span = Angle::abs(end_angle - start_angle);
+            
+            // 보정 테이블에 값이 있으면,
+            if (correction_table.size()) {
+                // 보정 테이블을 설정하는 함수를 호출합니다.
+                setAngleCorrectionTable(correction_table);
+				}
 		}
+
+	// 매개변수가 있는 생성자: 시작 각도, 종료 각도, 각도 단계(모두 float 타입) 및 선택적으로 보정 테이블을 받아 객체를 초기화합니다.
 		AngularRange(const float start_angle, const float end_angle, const float step, const std::vector<float>& correction_table = std::vector<float>()) {
-			AngularRange(Angle(Angle::IsAngle{}, start_angle), Angle(Angle::IsAngle{}, end_angle), Angle(Angle::IsAngle{}, step), correction_table);
+		    // 다른 생성자를 호출하여 Angle 타입으로 변환된 매개변수를 사용해 객체를 초기화합니다.
+		    AngularRange(Angle(Angle::IsAngle{}, start_angle), Angle(Angle::IsAngle{}, end_angle), Angle(Angle::IsAngle{}, step), correction_table);
 			// _start_angle = Angle(Angle::IsAngle{}, start_angle);
 			// _end_angle = Angle(Angle::IsAngle{}, end_angle);
 			// _step = Angle(Angle::IsAngle{}, step);
 			// _num_beams = std::round(std::fabs((_end_angle - _start_angle) / _step));
 			// _span = Angle::abs(_end_angle - _start_angle);
 		}
-		AngularRange(const float start_angle, const float end_angle, int num_beams, const std::vector<float>& correction_table = std::vector<float>()) {
-			AngularRange(Angle(Angle::IsAngle{}, start_angle), Angle(Angle::IsAngle{}, end_angle), num_beams, correction_table);
+
+	// 매개변수가 있는 생성자: float 타입의 시작 각도, 종료 각도, 빔의 개수 및 선택적으로 보정 테이블을 받아 객체를 초기화합니다.
+	        AngularRange(const float start_angle, const float end_angle, int num_beams, const std::vector<float>& correction_table = std::vector<float>()) {
+	            // Angle 타입의 매개변수를 받는 다른 생성자를 호출하여 객체를 초기화합니다.
+	            AngularRange(Angle(Angle::IsAngle{}, start_angle), Angle(Angle::IsAngle{}, end_angle), num_beams, correction_table);
 			// _start_angle = Angle(Angle::IsAngle{}, start_angle);
 			// _end_angle = Angle(Angle::IsAngle{}, end_angle);
 			// _num_beams = num_beams;
@@ -268,170 +295,280 @@ class AngularRange
 			// _span = Angle::abs(_end_angle - _start_angle);
 		}
 
-		AngularRange(const AngularRange& other)
-		{
-			*this = other;
-		}
 
-		const Angle& start_angle() const { return _start_angle; }
-		const Angle& end_angle() const { return _end_angle; }
-		const Angle& step() const { return _step; }
-		const Angle& span() const { return _span; }
-		int num_beams() const { return _num_beams; }
+	        // 복사 생성자: 다른 AngularRange 객체의 복사본을 생성합니다.
+	        AngularRange(const AngularRange& other)
+	        {
+	            // 대입 연산자를 사용하여 다른 객체의 모든 멤버를 현재 객체에 복사합니다.
+	            *this = other;
+	        }
 
-		bool valid() const { return _num_beams > 0 && _span > 0_deg; }
+		// 시작 각도를 반환하는 함수
+		        const Angle& start_angle() const { return _start_angle; }
+		
+		        // 종료 각도를 반환하는 함수
+		        const Angle& end_angle() const { return _end_angle; }
+		
+		        // 각도 단계(step)를 반환하는 함수
+		        const Angle& step() const { return _step; }
+		
+		        // 각도 범위(span)를 반환하는 함수
+		        const Angle& span() const { return _span; }
+		
+		        // 빔의 개수를 반환하는 함수
+		        int num_beams() const { return _num_beams; }
+		
+		        // 객체가 유효한지 여부를 반환하는 함수. 빔의 개수가 0보다 크고, 각도 범위가 0도보다 커야 유효함.
+		        bool valid() const { return _num_beams > 0 && _span > 0_deg; }
 
+		// 각도 보정 테이블을 Angle 타입의 벡터로 반환하는 함수
 		const std::vector<Angle>& getAngleCorrectionTable() const { return _angle_correction_table; }
+	
+		// 각도 보정 테이블을 float 형태로 반환하는 함수
 		const std::vector<float> getAngleCorrectionTableF() const 
 		{ 
-			std::vector<float> correction_table;
-			correction_table.clear();
-			for (auto& it : _angle_correction_table) {
-				correction_table.push_back(it.toDegrees());
-			}
-			return correction_table; 
-		}
-		void setAngleCorrectionTable(const std::vector<Angle>& correction_table) { _angle_correction_table = correction_table; }
-		void setAngleCorrectionTable(const std::vector<float>& correction_table) 
-		{ 
-			_angle_correction_table.clear();
-			for (auto& it : correction_table) {
-				_angle_correction_table.push_back(Angle::fromDegrees(it));
-			}
+		    // float 타입의 보정 테이블을 생성합니다.
+		    std::vector<float> correction_table;
+		    // 테이블의 내용을 초기화합니다.
+		    correction_table.clear();
+	
+		    // _angle_correction_table의 모든 요소에 대해 반복합니다.
+		    for (auto& it : _angle_correction_table) {
+			// 각 요소를 도(degree) 단위로 변환하여 float 타입의 보정 테이블에 추가합니다.
+			correction_table.push_back(it.toDegrees());
+		    }
+		    // 변환된 보정 테이블을 반환합니다.
+		    return correction_table; 
 		}
 
-		AngularRange& operator = (const AngularRange& other)
-		{
-			if (this != &other) {
-				_start_angle = other._start_angle;
-				_end_angle = other._end_angle;
-				_step = other._step;
-				_span = other._span;
-				_num_beams = other._num_beams;
-				_angle_correction_table = other._angle_correction_table;
-			}
-			return *this;
-		}
+	// Angle 타입의 벡터를 받아 각도 보정 테이블을 설정하는 함수
+	void setAngleCorrectionTable(const std::vector<Angle>& correction_table) { 
+	    _angle_correction_table = correction_table; 
+	}
 
+        // float 타입의 벡터를 받아 각도 보정 테이블을 설정하는 함수
+        void setAngleCorrectionTable(const std::vector<float>& correction_table) 
+        { 
+            // 내부의 보정 테이블을 초기화합니다.
+            _angle_correction_table.clear();
+
+            // 주어진 float 벡터의 모든 요소에 대해 반복합니다.
+            for (auto& it : correction_table) {
+                // 각 float 값을 도(degree) 단위의 Angle 객체로 변환하여 보정 테이블에 추가합니다.
+                _angle_correction_table.push_back(Angle::fromDegrees(it));
+            }
+        }
+
+	
+	// 대입 연산자 오버로딩: 다른 AngularRange 객체를 현재 객체에 복사합니다.
+	        AngularRange& operator = (const AngularRange& other)
+	        {
+	            // 자기 자신에 대한 대입을 방지합니다.
+	            if (this != &other) {
+	                // 다른 객체의 멤버 변수들을 현재 객체의 멤버 변수에 복사합니다.
+	                _start_angle = other._start_angle;
+	                _end_angle = other._end_angle;
+	                _step = other._step;
+	                _span = other._span;
+	                _num_beams = other._num_beams;
+	                _angle_correction_table = other._angle_correction_table;
+	            }
+	            // 현재 객체의 참조를 반환합니다.
+	            return *this;
+	        }
+
+	 // YAML 직렬화를 수행하는 친구 함수
 		friend YAML::Emitter& operator <<(YAML::Emitter& out, const AngularRange& val)
 		{
-			out << YAML::BeginMap;
-			out << YAML::Key << "start_angle";
-			out << YAML::Value << val.start_angle().toDegrees();
-			out << YAML::Key << "end_angle";
-			out << YAML::Value << val.end_angle().toDegrees();
-			out << YAML::Key << "step";
-			std::cout << "Emit angle table of size: " << val.getAngleCorrectionTable().size() << std::endl;
-			out << YAML::Value  << val.step().toDegrees();
-			if (val.getAngleCorrectionTable().size()) {
-				out << YAML::Key << "angle_correction_table";
-				out << YAML::Value << YAML::Flow << val.getAngleCorrectionTableF();
-			}
-			out << YAML::EndMap;
-			return out;
+		    // YAML 맵 시작
+		    out << YAML::BeginMap;
+	
+		    // 시작 각도를 YAML 맵에 추가
+		    out << YAML::Key << "start_angle";
+		    out << YAML::Value << val.start_angle().toDegrees();
+	
+		    // 종료 각도를 YAML 맵에 추가
+		    out << YAML::Key << "end_angle";
+		    out << YAML::Value << val.end_angle().toDegrees();
+	
+		    // 각도 단계(step)를 YAML 맵에 추가
+		    out << YAML::Key << "step";
+		    // 현재 처리 중인 각도 보정 테이블의 크기 출력
+		    std::cout << "Emit angle table of size: " << val.getAngleCorrectionTable().size() << std::endl;
+		    out << YAML::Value << val.step().toDegrees();
+	
+		    // 각도 보정 테이블이 존재하면 YAML 맵에 추가
+		    if (val.getAngleCorrectionTable().size()) {
+			out << YAML::Key << "angle_correction_table";
+			out << YAML::Value << YAML::Flow << val.getAngleCorrectionTableF();
+		    }
+	
+		    // YAML 맵 종료
+		    out << YAML::EndMap;
+	
+		    // YAML Emitter 참조 반환
+		    return out;
 		}
 
-		friend std::ostream& operator <<(std::ostream& out, const AngularRange& val)
-		{
-			out << "start_angle: ";
-			out << val.start_angle() << std::endl;
-			out << "end_angle: ";
-			out << val.end_angle() << std::endl;
-			out << "step: ";
-			out << val.step() << std::endl;
-			out << "beams: ";
-			out << val.num_beams() << std::endl;
-			out << "span: ";
-			out << val.span() << std::endl;
-			if (val.getAngleCorrectionTable().size()) {
-				out << "angle_correction_table: [";
-				for (auto it = val.getAngleCorrectionTable().begin(); it != val.getAngleCorrectionTable().end(); ++it) {
-					out << it->toDegrees();
-					if (it < val.getAngleCorrectionTable().end()) {
-						out << ",";
-					}
-				}
-				out << "]" << std::endl;
-			}
-			return out;
-		}
+	// 출력 스트림 연산자 오버로딩: AngularRange 객체의 데이터를 문자열 형태로 출력합니다.
+        friend std::ostream& operator <<(std::ostream& out, const AngularRange& val)
+        {
+            // 시작 각도를 출력합니다.
+            out << "start_angle: ";
+            out << val.start_angle() << std::endl;
+
+            // 종료 각도를 출력합니다.
+            out << "end_angle: ";
+            out << val.end_angle() << std::endl;
+
+            // 각도 단계(step)를 출력합니다.
+            out << "step: ";
+            out << val.step() << std::endl;
+
+            // 빔의 개수를 출력합니다.
+            out << "beams: ";
+            out << val.num_beams() << std::endl;
+
+            // 각도 범위(span)를 출력합니다.
+            out << "span: ";
+            out << val.span() << std::endl;
+
+            // 각도 보정 테이블이 존재하는 경우, 그 내용을 출력합니다.
+            if (val.getAngleCorrectionTable().size()) {
+                out << "angle_correction_table: [";
+                for (auto it = val.getAngleCorrectionTable().begin(); it != val.getAngleCorrectionTable().end(); ++it) {
+                    // 각도 보정 테이블의 요소를 도(degree) 단위로 출력합니다.
+                    out << it->toDegrees();
+                    // 요소 사이에 쉼표를 추가합니다.
+                    if (it < val.getAngleCorrectionTable().end() - 1) {
+                        out << ", ";
+                    }
+                }
+                out << "]" << std::endl;
+            }
+
+            // 스트림 참조를 반환합니다.
+            return out;
+        }
 
 	private:
-		Angle _start_angle = 0_deg;
-		Angle _end_angle = 0_deg;
-		Angle _step = 0_deg;
-		Angle _span = 0_deg;
-		int _num_beams = 0;
-		std::vector<Angle> _angle_correction_table;
-};
+        // 시작 각도를 나타내는 멤버 변수. 기본값은 0도입니다.
+        Angle _start_angle = 0_deg;
 
+        // 종료 각도를 나타내는 멤버 변수. 기본값은 0도입니다.
+        Angle _end_angle = 0_deg;
+
+        // 각도 단계를 나타내는 멤버 변수. 기본값은 0도입니다.
+        Angle _step = 0_deg;
+
+        // 각도 범위를 나타내는 멤버 변수. 기본값은 0도입니다.
+        Angle _span = 0_deg;
+
+        // 빔의 개수를 나타내는 멤버 변수. 기본값은 0입니다.
+        int _num_beams = 0;
+
+        // 각도 보정 테이블을 나타내는 벡터 멤버 변수.
+        std::vector<Angle> _angle_correction_table;
+
+        // ...
+	};
 
 }  // namespace cloud_to_image
 
+// 라디안 값을 받아 Angle 객체를 생성하는 리터럴 연산자
 constexpr cloud_to_image::Angle operator"" _rad(long double Angle) 
 {
+  // 라디안 값을 float로 변환하여 Angle 객체를 생성합니다.
   return cloud_to_image::Angle{cloud_to_image::Angle::IsAngle{}, static_cast<float>(Angle)};
 }
 
+// 정수형 도(degree) 값을 받아 Angle 객체를 생성하는 리터럴 연산자
 constexpr cloud_to_image::Angle operator"" _deg(unsigned long long int Angle) 
 {
+  // 도 값을 라디안으로 변환하고 float로 변환하여 Angle 객체를 생성합니다.
   return cloud_to_image::Angle{cloud_to_image::Angle::IsAngle{}, static_cast<float>(Angle * M_PI / 180.0)};
 }
 
+// 부동소수점형 도(degree) 값을 받아 Angle 객체를 생성하는 리터럴 연산자
 constexpr cloud_to_image::Angle operator"" _deg(long double Angle) 
 {
+  // 도 값을 라디안으로 변환하고 float로 변환하여 Angle 객체를 생성합니다.
   return cloud_to_image::Angle{cloud_to_image::Angle::IsAngle{}, static_cast<float>(Angle * M_PI / 180.0)};
 }
 
 namespace YAML
 {
+	// YAML 변환을 위한 템플릿 특수화
 	template<>
 	struct convert<cloud_to_image::Angle> 
 	{
-		static Node encode(const cloud_to_image::Angle& rhs)
-		{
-			Node node;
-			node = rhs.toDegrees();
-			return node;
-		}
-
-		static bool decode(const Node& node, cloud_to_image::Angle& rhs)
-		{
-			rhs = cloud_to_image::Angle::fromDegrees(node.as<float>());
-			return true;
-		}
+	    // cloud_to_image::Angle 타입을 YAML 노드로 인코딩합니다.
+	    static Node encode(const cloud_to_image::Angle& rhs)
+	    {
+	        Node node;
+	        // Angle 객체를 도(degree) 단위로 변환하여 노드에 할당합니다.
+	        node = rhs.toDegrees();
+	        return node;
+	    }
+	
+	    // YAML 노드를 cloud_to_image::Angle 타입으로 디코딩합니다.
+	    static bool decode(const Node& node, cloud_to_image::Angle& rhs)
+	    {
+	        // 노드에서 float 값을 추출하여 도(degree) 단위의 Angle 객체로 변환합니다.
+	        rhs = cloud_to_image::Angle::fromDegrees(node.as<float>());
+	        return true;
+	    }
 	};
 
+	// cloud_to_image::AngularRange 타입에 대한 YAML 변환을 위한 템플릿 특수화
 	template<>
 	struct convert<cloud_to_image::AngularRange> 
 	{
-		static Node encode(const cloud_to_image::AngularRange& rhs)
-		{
-			Node node;
-			node["start_angle"] = rhs.start_angle().toDegrees();
-			node["end_angle"] = rhs.end_angle().toDegrees();
-			node["step"] = rhs.step().toDegrees();
-			if (rhs.getAngleCorrectionTable().size()) {
-				node["angle_correction_table"] = rhs.getAngleCorrectionTable();
-			}
-			return node;
-		}
+	    // cloud_to_image::AngularRange 타입을 YAML 노드로 인코딩하는 함수
+	    static Node encode(const cloud_to_image::AngularRange& rhs)
+	    {
+	        Node node;
+	        // 시작 각도를 YAML 노드에 추가합니다. 각도는 도(degree) 단위로 변환됩니다.
+	        node["start_angle"] = rhs.start_angle().toDegrees();
+	
+	        // 종료 각도를 YAML 노드에 추가합니다. 각도는 도(degree) 단위로 변환됩니다.
+	        node["end_angle"] = rhs.end_angle().toDegrees();
+	
+	        // 각도 단계(step)를 YAML 노드에 추가합니다. 각도는 도(degree) 단위로 변환됩니다.
+	        node["step"] = rhs.step().toDegrees();
+	
+	        // 각도 보정 테이블이 존재하는 경우, 이를 YAML 노드에 추가합니다.
+	        if (rhs.getAngleCorrectionTable().size()) {
+	            node["angle_correction_table"] = rhs.getAngleCorrectionTable();
+	        }
+	
+	        return node;
+	    }
 
-		static bool decode(const Node& node, cloud_to_image::AngularRange& rhs)
-		{
-			if (!node.IsMap() || (node.size() != 3 && node.size() != 4)) {
-				return false;
-			}
-			rhs = cloud_to_image::AngularRange(cloud_to_image::Angle::fromDegrees(node["start_angle"].as<float>()), 
-				                               cloud_to_image::Angle::fromDegrees(node["end_angle"].as<float>()), 
-				                               cloud_to_image::Angle::fromDegrees(node["step"].as<float>()));
-			if (node["angle_correction_table"]) {
-				rhs.setAngleCorrectionTable(node["angle_correction_table"].as< std::vector<float> >());
-			}
-
-			return true;
-		}
+		// YAML 노드에서 cloud_to_image::AngularRange 타입으로 디코딩하는 함수
+	    static bool decode(const Node& node, cloud_to_image::AngularRange& rhs)
+	    {
+	        // YAML 노드가 맵이 아니거나 필요한 요소의 개수와 다른 경우, false를 반환합니다.
+	        if (!node.IsMap() || (node.size() != 3 && node.size() != 4)) {
+	            return false;
+	        }
+	
+	        // YAML 노드에서 시작 각도, 종료 각도, 각도 단계를 추출하여 AngularRange 객체를 생성합니다.
+	        rhs = cloud_to_image::AngularRange(
+	            cloud_to_image::Angle::fromDegrees(node["start_angle"].as<float>()), 
+	            cloud_to_image::Angle::fromDegrees(node["end_angle"].as<float>()), 
+	            cloud_to_image::Angle::fromDegrees(node["step"].as<float>())
+	        );
+	
+	        // 각도 보정 테이블이 존재하는 경우, 이를 추출하여 설정합니다.
+	        if (node["angle_correction_table"]) {
+	            rhs.setAngleCorrectionTable(node["angle_correction_table"].as<std::vector<float>>());
+	        }
+	
+	        return true;
+	    }
 	};
-}
+	
+	}  // namespace cloud_to_image
 
 #endif  // ANGLES_H

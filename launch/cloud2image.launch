@@ -38,3 +38,68 @@
         <param name="flip" type="bool" value="$(arg flip)"/>
     </node>
 </launch>
+
+
+
+
+
+/'''
+
+<!-- -*- mode: XML -*- -->
+<!-- LiDAR Cloud to Image를 위한 런치 파일 -->
+<launch>
+    <!-- 센서 프로젝션 매개변수 파일의 경로 -->
+    <arg name="proj_params" default="$(find lidar_cloud_to_image)/config/projection_params.yaml" doc="센서 프로젝션 매개변수 파일 경로" />
+    <!-- LiDAR 포인트 클라우드 토픽 이름 -->
+    <arg name="cloud_topic" default="/points_raw" doc="LiDAR 포인트 클라우드 토픽 이름" />
+    <!-- 이 변환에 대한 LiDAR 센서 모델 -->
+    <arg name="sensor_model" default="HDL-64" doc="이 변환에 대한 LiDAR 센서 모델" />
+    <!-- 3D 포인트 클라우드의 포인트 형식 -->
+    <arg name="point_type" default="XYZI" doc="3D 포인트 클라우드의 포인트 형식, 유효한 옵션: XYZ, XYZI, XYZIR, XYZIF, XYZIFN" />
+    <!-- 깊이 (거리) 출력 이미지의 토픽 이름 -->
+    <arg name="depth_image_topic" default="/c2i_depth_image" doc="깊이 (거리) 출력 이미지의 토픽 이름" />
+    <!-- 강도 출력 이미지의 토픽 이름 -->
+    <arg name="intensity_image_topic" default="/c2i_intensity_image" doc="강도 출력 이미지의 토픽 이름" />
+    <!-- 반사 출력 이미지의 토픽 이름 -->
+    <arg name="reflectance_image_topic" default="/c2i_reflectance_image" doc="반사 출력 이미지의 토픽 이름" />
+    <!-- 잡음 출력 이미지의 토픽 이름 -->
+    <arg name="noise_image_topic" default="/c2i_noise_image" doc="잡음 출력 이미지의 토픽 이름" />
+    <!-- 수평 스케일 계수 -->
+    <arg name="h_scale" default="1.0" doc="수평 스케일 계수" />
+    <!-- 수직 스케일 계수 -->
+    <arg name="v_scale" default="1.0" doc="수직 스케일 계수" />
+    <!-- 출력 이미지가 게시되는 방식 -->
+    <arg name="output_mode" default="SINGLE" doc="출력 이미지가 게시되는 방식. SINGLE: 각 이미지가 독립적으로, GROUP: 모든 이미지가 하나로 그룹화, STACK: 모든 이미지가 하나의 채널로 결합, ALL: 단일 이미지 + 그룹 이미지 + 스택 이미지가 게시됩니다" />
+    <!-- 생성된 이미지의 PNG 파일을 출력할지 여부 -->
+    <arg name="save_images" default="false" doc="생성된 이미지의 PNG 파일을 출력할지 여부" />
+    <!-- 원을 닫기 위해 왼쪽에서 오른쪽으로 이미지 블록을 복사할지 여부 -->
+    <arg name="overlapping" default="0" doc="원을 닫기 위해 왼쪽에서 오른쪽으로 이미지 블록을 복사할지 여부, 이 매개변수는 얼마나 복사할지를 제어합니다" />
+    <!-- 8 비트 모드 이미지를 출력할지 여부 -->
+    <arg name="8bpp" default="false" doc="8 비트 모드 이미지를 출력할지 여부" />
+    <!-- 출력 이미지에 대한 히스토그램을 평준화할지 여부 -->
+    <arg name="equalize" default="false" doc="출력 이미지에 대한 히스토그램을 평준화할지 여부" />
+    <!-- 이미지를 수평으로 뒤집을지 여부 -->
+    <arg name="flip" default="false" doc="이미지를 수평으로 뒤집을지 여부" />
+    
+    <!-- 클라우드를 이미지로 변환하는 노드 -->
+    <node pkg="lidar_cloud_to_image" type="cloud2image" name="cloud2image" output="screen">
+        <param name="proj_params" type="str" value="$(arg proj_params)"/>
+        <param name="cloud_topic" type="str" value="$(arg cloud_topic)"/>
+        <param name="sensor_model" type="str" value="$(arg sensor_model)"/>
+        <param name="point_type" type="str" value="$(arg point_type)"/>
+        <param name="depth_image_topic" type="str" value="$(arg depth_image_topic)"/>
+        <param name="intensity_image_topic" type="str" value="$(arg intensity_image_topic)"/>
+        <param name="reflectance_image_topic" type="str" value="$(arg reflectance_image_topic)"/>
+        <param name="noise_image_topic" type="str" value="$(arg noise_image_topic)"/>
+        <param name="h_scale" type="double" value="$(arg h_scale)"/>
+        <param name="v_scale" type="double" value="$(arg v_scale)"/>
+        <param name="output_mode" type="str" value="$(arg output_mode)"/>
+        <param name="save_images" type="bool" value="$(arg save_images)"/>
+        <param name="overlapping" type="int" value="$(arg overlapping)"/>
+        <param name="8bpp" type="bool" value="$(arg 8bpp)"/>
+        <param name="equalize" type="bool" value="$(arg equalize)"/>
+        <param name="flip" type="bool" value="$(arg flip)"/>
+    </node>
+</launch>
+
+'''/
